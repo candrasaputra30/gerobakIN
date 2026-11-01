@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
+import 'history_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -27,54 +28,52 @@ class ProfileScreen extends StatelessWidget {
               backgroundColor: const Color(0xFF2D8B57),
               child: Text(
                 user?['name']?.substring(0, 1).toUpperCase() ?? 'U',
-                style: const TextStyle(
-                    fontSize: 36,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 36, color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              user?['name'] ?? 'Pengguna',
-              style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              user?['role'] ?? 'customer',
-              style: const TextStyle(color: Colors.grey),
+            Text(user?['name'] ?? 'Pengguna', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(user?['phone'] ?? '', style: const TextStyle(color: Colors.grey)),
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(color: const Color(0xFF2D8B57).withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+              child: Text(user?['role'] ?? 'customer', style: const TextStyle(color: Color(0xFF2D8B57), fontWeight: FontWeight.bold, fontSize: 12)),
             ),
             const SizedBox(height: 24),
             _MenuItem(
               icon: Icons.list_alt,
               label: 'Riwayat Pesanan',
-              onTap: () {},
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen(initialTab: 0))),
             ),
             _MenuItem(
               icon: Icons.shopping_cart,
               label: 'Riwayat Sewa',
-              onTap: () {},
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen(initialTab: 1))),
             ),
             _MenuItem(
-              icon: Icons.location_on,
-              label: 'Alamat Tersimpan',
-              onTap: () {},
+              icon: Icons.star_outline,
+              label: 'Rating Saya',
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen(initialTab: 2))),
             ),
             _MenuItem(
               icon: Icons.help_outline,
               label: 'Pusat Bantuan',
-              onTap: () {},
+              onTap: () => showDialog(context: context, builder: (_) => AlertDialog(
+                title: const Text('Pusat Bantuan'),
+                content: const Text('Hubungi kami via WhatsApp atau email untuk bantuan lebih lanjut.'),
+                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+              )),
             ),
             _MenuItem(
               icon: Icons.info_outline,
               label: 'Tentang Aplikasi',
-              onTap: () {
-                showAboutDialog(
-                  context: context,
-                  applicationName: 'GERObakIN',
-                  applicationVersion: '1.0.0',
-                  applicationLegalese: 'Pindahan Mudah, Angkut Cepat',
-                );
-              },
+              onTap: () => showAboutDialog(
+                context: context,
+                applicationName: 'GERObakIN',
+                applicationVersion: '1.0.0',
+                applicationLegalese: 'Pindahan Mudah, Angkut Cepat, Harga Bersahabat',
+              ),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -84,22 +83,11 @@ class ProfileScreen extends StatelessWidget {
                 onPressed: () async {
                   await context.read<AuthService>().logout();
                   if (context.mounted) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const LoginScreen()),
-                      (_) => false,
-                    );
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (_) => false);
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('Keluar',
-                    style:
-                        TextStyle(color: Colors.white, fontSize: 16)),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                child: const Text('Keluar', style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ),
           ],
@@ -114,11 +102,7 @@ class _MenuItem extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _MenuItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+  const _MenuItem({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
