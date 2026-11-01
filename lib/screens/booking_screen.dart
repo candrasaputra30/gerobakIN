@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import '../services/api_service.dart';
 import 'payment_screen.dart';
+import 'map_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final String serviceType;
@@ -14,12 +16,36 @@ class _BookingScreenState extends State<BookingScreen> {
   final _pickupCtrl = TextEditingController();
   final _destCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
+  LatLng? _pickupLatLng;
+  LatLng? _destLatLng;
   bool _loading = false;
+
+  Future<void> _pickLocation(bool isPickup) async {
+    final result = await Navigator.push<LatLng>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MapScreen(
+          title: isPickup ? 'Pilih Lokasi Penjemputan' : 'Pilih Lokasi Tujuan',
+        ),
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        if (isPickup) {
+          _pickupLatLng = result;
+          _pickupCtrl.text = '${result.latitude.toStringAsFixed(4)}, ${result.longitude.toStringAsFixed(4)}';
+        } else {
+          _destLatLng = result;
+          _destCtrl.text = '${result.latitude.toStringAsFixed(4)}, ${result.longitude.toStringAsFixed(4)}';
+        }
+      });
+    }
+  }
 
   Future<void> _submit() async {
     if (_pickupCtrl.text.isEmpty || _destCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Isi lokasi penjemputan dan tujuan')),
+        const SnackBar(content: Text('Pilih lokasi penjemputan dan tujuan dulu')),
       );
       return;
     }
@@ -77,21 +103,35 @@ class _BookingScreenState extends State<BookingScreen> {
             const Text('Lokasi',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            TextField(
-              controller: _pickupCtrl,
-              decoration: InputDecoration(
-                labelText: 'Lokasi Penjemputan',
-                prefixIcon: const Icon(Icons.location_on, color: Color(0xFF2D8B57)),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            GestureDetector(
+              onTap: () => _pickLocation(true),
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: _pickupCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Lokasi Penjemputan',
+                    hintText: 'Tap untuk pilih di peta',
+                    prefixIcon: const Icon(Icons.location_on, color: Color(0xFF2D8B57)),
+                    suffixIcon: const Icon(Icons.map, color: Color(0xFF2D8B57)),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _destCtrl,
-              decoration: InputDecoration(
-                labelText: 'Lokasi Tujuan',
-                prefixIcon: const Icon(Icons.flag, color: Colors.red),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            GestureDetector(
+              onTap: () => _pickLocation(false),
+              child: AbsorbPointer(
+                child: TextField(
+                  controller: _destCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Lokasi Tujuan',
+                    hintText: 'Tap untuk pilih di peta',
+                    prefixIcon: const Icon(Icons.flag, color: Colors.red),
+                    suffixIcon: const Icon(Icons.map, color: Colors.red),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),
