@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../services/api_service.dart';
 
 class HistoryScreen extends StatefulWidget {
   final int initialTab;
@@ -25,17 +26,29 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
   void dispose() { _tab.dispose(); super.dispose(); }
 
   Future<void> _load() async {
-    final svc = context.read<AuthService>();
-    final b = await svc.get('/api/bookings/my');
-    final r = await svc.get('/api/rentals/my');
-    final rt = await svc.get('/api/ratings/my');
-    if (!mounted) return;
-    setState(() {
-      _bookings = b is List ? b : [];
-      _rentals = r is List ? r : [];
-      _ratings = rt is List ? rt : [];
-      _loading = false;
-    });
+    try {
+      final results = await Future.wait([
+        ApiService.getList('/bookings/my'),
+        ApiService.getList('/rentals/my'),
+        ApiService.getList('/ratings/my'),
+      ]);
+
+      if (!mounted) return;
+      setState(() {
+        _bookings = results[0];
+        _rentals = results[1];
+        _ratings = results[2];
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat riwayat: $e')),
+      );
+    }
   }
 
   @override
