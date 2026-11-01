@@ -2,8 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
+import '../services/api_service.dart';
 
 class TrackingScreen extends StatefulWidget {
   final int bookingId;
@@ -49,25 +48,38 @@ class _TrackingScreenState extends State<TrackingScreen> {
   }
 
   Future<void> _fetch() async {
-    final svc = context.read<AuthService>();
-    final res = await svc.get('/api/locations/booking/${widget.bookingId}');
-    if (!mounted) return;
-    if (res is Map && res['latitude'] != null) {
+    try {
+      final res = await ApiService.get(
+        '/locations/booking/${widget.bookingId}',
+      );
+      if (!mounted) return;
+
+      if (res['latitude'] != null && res['longitude'] != null) {
+        final updatedAt = res['updated_at']?.toString() ?? '';
+        setState(() {
+          _driverLoc = LatLng(
+            (res['latitude'] as num).toDouble(),
+            (res['longitude'] as num).toDouble(),
+          );
+          _driverName = res['driver_name']?.toString() ?? '-';
+          _driverPhone = res['driver_phone']?.toString() ?? '-';
+          _lastUpdate = updatedAt.length >= 19
+              ? updatedAt.substring(11, 19)
+              : '-';
+          _loading = false;
+          _error = null;
+        });
+      } else {
+        setState(() {
+          _loading = false;
+          _error = 'Menunggu driver memulai perjalanan...';
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _driverLoc = LatLng(
-          (res['latitude'] as num).toDouble(),
-          (res['longitude'] as num).toDouble(),
-        );
-        _driverName = res['driver_name'] ?? '-';
-        _driverPhone = res['driver_phone'] ?? '-';
-        _lastUpdate = res['updated_at']?.toString().substring(11, 19) ?? '-';
         _loading = false;
-        _error = null;
-      });
-    } else {
-      setState(() {
-        _loading = false;
-        _error = 'Menunggu driver memulai perjalanan...';
+        _error = 'Gagal mengambil lokasi driver. Periksa koneksi.';
       });
     }
   }

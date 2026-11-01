@@ -3,7 +3,12 @@ import '../services/api_service.dart';
 
 class RatingScreen extends StatefulWidget {
   final int bookingId;
-  const RatingScreen({super.key, required this.bookingId});
+  final String bookingType;
+  const RatingScreen({
+    super.key,
+    required this.bookingId,
+    this.bookingType = 'booking',
+  });
 
   @override
   State<RatingScreen> createState() => _RatingScreenState();

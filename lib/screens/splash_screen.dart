@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _init() async {
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
-    await context.read<AuthService>().loadUser();
+    await context.read<AuthService>().loadToken();
     if (!mounted) return;
     final update = await UpdateService.checkUpdate();
     if (!mounted) return;
