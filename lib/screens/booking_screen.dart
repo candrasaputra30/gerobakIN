@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import 'payment_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final String serviceType;
@@ -24,17 +25,22 @@ class _BookingScreenState extends State<BookingScreen> {
     }
     setState(() => _loading = true);
     try {
-      await ApiService.post('/bookings', {
+      final result = await ApiService.post('/bookings', {
         'vehicle_id': 1,
         'pickup_location': _pickupCtrl.text,
         'destination': _destCtrl.text,
-        'total_price': 0,
+        'total_price': 150000,
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pesanan berhasil dibuat')),
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PaymentScreen(
+              bookingId: result['bookingId'],
+              amount: 150000,
+            ),
+          ),
         );
-        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -88,7 +94,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             TextField(
               controller: _notesCtrl,
               maxLines: 3,
