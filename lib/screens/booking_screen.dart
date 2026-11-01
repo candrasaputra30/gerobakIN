@@ -13,22 +13,7 @@ class _BookingScreenState extends State<BookingScreen> {
   final _pickupCtrl = TextEditingController();
   final _destCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
-  List _vehicles = [];
-  int? _selectedVehicle;
   bool _loading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVehicles();
-  }
-
-  Future<void> _loadVehicles() async {
-    try {
-      final data = await ApiService.get('/rentals/carts');
-      setState(() => _vehicles = data is List ? data : []);
-    } catch (e) {}
-  }
 
   Future<void> _submit() async {
     if (_pickupCtrl.text.isEmpty || _destCtrl.text.isEmpty) {
@@ -40,7 +25,7 @@ class _BookingScreenState extends State<BookingScreen> {
     setState(() => _loading = true);
     try {
       await ApiService.post('/bookings', {
-        'vehicle_id': _selectedVehicle ?? 1,
+        'vehicle_id': 1,
         'pickup_location': _pickupCtrl.text,
         'destination': _destCtrl.text,
         'total_price': 0,
@@ -84,17 +69,14 @@ class _BookingScreenState extends State<BookingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Lokasi',
-                style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             TextField(
               controller: _pickupCtrl,
               decoration: InputDecoration(
                 labelText: 'Lokasi Penjemputan',
-                prefixIcon: const Icon(Icons.location_on,
-                    color: Color(0xFF2D8B57)),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                prefixIcon: const Icon(Icons.location_on, color: Color(0xFF2D8B57)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             const SizedBox(height: 12),
@@ -102,24 +84,17 @@ class _BookingScreenState extends State<BookingScreen> {
               controller: _destCtrl,
               decoration: InputDecoration(
                 labelText: 'Lokasi Tujuan',
-                prefixIcon: const Icon(Icons.flag,
-                    color: Colors.red),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                prefixIcon: const Icon(Icons.flag, color: Colors.red),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Catatan Tambahan',
-                style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
             TextField(
               controller: _notesCtrl,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Tambahkan catatan untuk driver...',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                hintText: 'Catatan tambahan...',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             const SizedBox(height: 32),
@@ -136,8 +111,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 child: _loading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text('Pesan Sekarang',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: 16)),
+                        style: TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ),
           ],

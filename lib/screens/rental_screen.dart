@@ -9,7 +9,7 @@ class RentalScreen extends StatefulWidget {
 }
 
 class _RentalScreenState extends State<RentalScreen> {
-  List _carts = [];
+  List<dynamic> _carts = [];
   bool _loading = true;
 
   @override
@@ -20,9 +20,9 @@ class _RentalScreenState extends State<RentalScreen> {
 
   Future<void> _load() async {
     try {
-      final data = await ApiService.get('/rentals/carts');
+      final data = await ApiService.getList('/rentals/carts');
       setState(() {
-        _carts = data is List ? data : [];
+        _carts = data;
         _loading = false;
       });
     } catch (e) {
@@ -45,8 +45,7 @@ class _RentalScreenState extends State<RentalScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.shopping_cart_outlined,
-                          size: 64, color: Colors.grey),
+                      Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
                       Text('Belum ada gerobak tersedia'),
                     ],
@@ -71,8 +70,7 @@ class _RentalScreenState extends State<RentalScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF6A1B9A)
-                                        .withOpacity(0.1),
+                                    color: const Color(0xFF6A1B9A).withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(Icons.shopping_cart,
@@ -81,38 +79,15 @@ class _RentalScreenState extends State<RentalScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(c['name'],
                                           style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 16)),
                                       Text(c['type'],
-                                          style: const TextStyle(
-                                              color: Colors.grey)),
+                                          style: const TextStyle(color: Colors.grey)),
                                     ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: c['stock'] > 0
-                                        ? Colors.green.withOpacity(0.1)
-                                        : Colors.red.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    c['stock'] > 0
-                                        ? 'Tersedia'
-                                        : 'Habis',
-                                    style: TextStyle(
-                                      color: c['stock'] > 0
-                                          ? Colors.green
-                                          : Colors.red,
-                                      fontSize: 12,
-                                    ),
                                   ),
                                 ),
                               ],
@@ -122,33 +97,12 @@ class _RentalScreenState extends State<RentalScreen> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       const Text('Per Jam',
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 12)),
+                                          style: TextStyle(color: Colors.grey, fontSize: 12)),
                                       Text(
-                                        'Rp ${c['price_per_hour'].toStringAsFixed(0)}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF2D8B57)),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text('Per Hari',
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 12)),
-                                      Text(
-                                        'Rp ${c['price_per_day'].toStringAsFixed(0)}',
+                                        'Rp ${c['price_per_hour']}',
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Color(0xFF2D8B57)),
@@ -157,19 +111,14 @@ class _RentalScreenState extends State<RentalScreen> {
                                   ),
                                 ),
                                 ElevatedButton(
-                                  onPressed: c['stock'] > 0
-                                      ? () {}
-                                      : null,
+                                  onPressed: () {},
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color(0xFF2D8B57),
+                                    backgroundColor: const Color(0xFF2D8B57),
                                     shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8)),
+                                        borderRadius: BorderRadius.circular(8)),
                                   ),
                                   child: const Text('Sewa',
-                                      style:
-                                          TextStyle(color: Colors.white)),
+                                      style: TextStyle(color: Colors.white)),
                                 ),
                               ],
                             ),

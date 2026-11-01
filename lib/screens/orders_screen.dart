@@ -9,7 +9,7 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  List _bookings = [];
+  List<dynamic> _bookings = [];
   bool _loading = true;
 
   @override
@@ -20,9 +20,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   Future<void> _load() async {
     try {
-      final data = await ApiService.get('/bookings/my');
+      final data = await ApiService.getList('/bookings/my');
       setState(() {
-        _bookings = data is List ? data : [];
+        _bookings = data;
         _loading = false;
       });
     } catch (e) {
@@ -66,34 +66,24 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('Pesanan #${b['id']}',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold)),
+                                    style: const TextStyle(fontWeight: FontWeight.bold)),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: _statusColor(b['status'])
-                                        .withOpacity(0.1),
+                                    color: _statusColor(b['status']).withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(b['status'],
-                                      style: TextStyle(
-                                          color:
-                                              _statusColor(b['status']),
-                                          fontSize: 12)),
+                                      style: TextStyle(color: _statusColor(b['status']), fontSize: 12)),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
                             Text('Dari: ${b['pickup_location']}'),
                             Text('Ke: ${b['destination']}'),
-                            if (b['total_price'] != null)
-                              Text(
-                                  'Total: Rp ${b['total_price'].toStringAsFixed(0)}'),
                           ],
                         ),
                       ),

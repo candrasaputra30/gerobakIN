@@ -25,6 +25,22 @@ class ApiService {
     throw Exception(json.decode(res.body)['message'] ?? 'Error');
   }
 
+  static Future<List<dynamic>> getList(String endpoint) async {
+    final token = await _getToken();
+    final res = await http.get(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      final decoded = json.decode(res.body);
+      return decoded is List ? decoded : [];
+    }
+    throw Exception('Error');
+  }
+
   static Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> body) async {
     final token = await _getToken();
