@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../services/notification_service.dart';
 import 'booking_screen.dart';
 import 'rental_screen.dart';
 import 'orders_screen.dart';
 import 'profile_screen.dart';
+import 'notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,27 +36,33 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: const Color(0xFF2D8B57),
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt), label: 'Pesanan'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart), label: 'Sewa'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person), label: 'Profil'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Pesanan'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Sewa'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
       ),
     );
   }
 }
 
-class HomeContent extends StatelessWidget {
+class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
+
+  @override
+  State<HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
+  @override
+  void initState() {
+    super.initState();
+    NotificationService.checkOrderStatus();
+  }
 
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthService>().user;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
@@ -80,37 +88,49 @@ class HomeContent extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text('Selamat Datang,',
-                                style: TextStyle(
-                                    color: Colors.white70, fontSize: 14)),
-                            Text(
-                              user?['name'] ?? 'Pengguna',
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                                style: TextStyle(color: Colors.white70, fontSize: 14)),
+                            Text(user?['name'] ?? 'Pengguna',
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        const CircleAvatar(
-                          backgroundColor: Colors.white24,
-                          child: Icon(Icons.person, color: Colors.white),
+                        GestureDetector(
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(builder: (_) => const NotificationScreen())),
+                          child: Stack(
+                            children: [
+                              const CircleAvatar(
+                                backgroundColor: Colors.white24,
+                                child: Icon(Icons.notifications, color: Colors.white),
+                              ),
+                              if (NotificationService.unreadCount > 0)
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                        color: Colors.red, shape: BoxShape.circle),
+                                    child: Text('${NotificationService.unreadCount}',
+                                        style: const TextStyle(color: Colors.white, fontSize: 10)),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
                       child: const Row(
                         children: [
                           Icon(Icons.search, color: Colors.grey),
                           SizedBox(width: 8),
-                          Text('Cari layanan...',
-                              style: TextStyle(color: Colors.grey)),
+                          Text('Cari layanan...', style: TextStyle(color: Colors.grey)),
                         ],
                       ),
                     ),
@@ -124,8 +144,7 @@ class HomeContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Layanan Utama',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
                     GridView.count(
                       shrinkWrap: true,
@@ -135,73 +154,40 @@ class HomeContent extends StatelessWidget {
                       mainAxisSpacing: 12,
                       childAspectRatio: 1.3,
                       children: [
-                        _ServiceCard(
-                          icon: Icons.home_work,
-                          label: 'Pindahan Rumah',
-                          color: const Color(0xFF2D8B57),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const BookingScreen(
-                                    serviceType: 'pindahan')),
-                          ),
-                        ),
-                        _ServiceCard(
-                          icon: Icons.inventory_2,
-                          label: 'Angkut Barang',
-                          color: const Color(0xFF1976D2),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const BookingScreen(
-                                    serviceType: 'angkut')),
-                          ),
-                        ),
-                        _ServiceCard(
-                          icon: Icons.local_shipping,
-                          label: 'Sewa Kendaraan',
-                          color: const Color(0xFFE65100),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const BookingScreen(
-                                    serviceType: 'kendaraan')),
-                          ),
-                        ),
-                        _ServiceCard(
-                          icon: Icons.shopping_cart,
-                          label: 'Sewa Gerobak',
-                          color: const Color(0xFF6A1B9A),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const RentalScreen()),
-                          ),
-                        ),
+                        _ServiceCard(icon: Icons.home_work, label: 'Pindahan Rumah',
+                            color: const Color(0xFF2D8B57),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(
+                                builder: (_) => const BookingScreen(serviceType: 'pindahan')))),
+                        _ServiceCard(icon: Icons.inventory_2, label: 'Angkut Barang',
+                            color: const Color(0xFF1976D2),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(
+                                builder: (_) => const BookingScreen(serviceType: 'angkut')))),
+                        _ServiceCard(icon: Icons.local_shipping, label: 'Sewa Kendaraan',
+                            color: const Color(0xFFE65100),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(
+                                builder: (_) => const BookingScreen(serviceType: 'kendaraan')))),
+                        _ServiceCard(icon: Icons.shopping_cart, label: 'Sewa Gerobak',
+                            color: const Color(0xFF6A1B9A),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(
+                                builder: (_) => const RentalScreen()))),
                       ],
                     ),
                     const SizedBox(height: 24),
                     const Text('Promo Terbaru',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF2D8B57), Color(0xFF1B5E20)],
-                        ),
+                        gradient: const LinearGradient(colors: [Color(0xFF2D8B57), Color(0xFF1B5E20)]),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Diskon 20% Pindahan!',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold)),
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                           SizedBox(height: 4),
                           Text('Untuk pengguna baru GERObakIN',
                               style: TextStyle(color: Colors.white70)),
@@ -226,12 +212,7 @@ class _ServiceCard extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
 
-  const _ServiceCard({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+  const _ServiceCard({required this.icon, required this.label, required this.color, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -241,30 +222,19 @@ class _ServiceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
+              decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
               child: Icon(icon, color: color, size: 32),
             ),
             const SizedBox(height: 8),
-            Text(label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w600)),
+            Text(label, textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
