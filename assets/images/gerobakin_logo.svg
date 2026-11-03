@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150">
+ <g fill="none" stroke="#07966B" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M35 75 L83 28 L131 75 V117 H48 V75"/>
+  <path d="M58 117 V82 H108 V117"/>
+  <path d="M142 67 H194 L210 90 H150 Z"/>
+  <circle cx="164" cy="112" r="12" fill="#07966B" stroke="none"/>
+  <circle cx="204" cy="112" r="12" fill="#07966B" stroke="none"/>
+ </g>
+ <text x="230" y="91" font-family="Arial,sans-serif" font-size="55" font-weight="800" fill="#10231D">GERObak<tspan fill="#07966B">IN</tspan></text>
+ <text x="233" y="123" font-family="Arial,sans-serif" font-size="16" letter-spacing="2" fill="#60716B">PINDAHAN • ANGKUT • SEWA GEROBAK</text>
+</svg>
